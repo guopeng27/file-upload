@@ -14,7 +14,7 @@ const LessPluginAutoPrefix = require('less-plugin-autoprefix');//css自动编译
 const autoprefix = new LessPluginAutoPrefix({ browsers: ["ie >= 8", "ie_mob >= 10", "ff >= 26", "chrome >= 30", "safari >= 6", "opera >= 23", "ios >= 5", "android >= 2.3", "bb >= 10"] });
 
 gulp.task('css',function(){
-    gulp.src('build/less/*.less')
+    gulp.src('public/build/less/*.less')
         .pipe(sourcemaps.init())
         .pipe(plumber({errorHandler: notify.onError('Error: <%= error.message %>')}))
         .pipe(less({ plugins: [autoprefix] }))
@@ -27,7 +27,7 @@ gulp.task('css',function(){
 });
 
 gulp.task('js',function(){
-    gulp.src('build/es6/*.es')
+    gulp.src('public/build/es6/*.es')
         .pipe(sourcemaps.init({identityMap:true}))
         .pipe(plumber({ errorHandler: notify.onError('Error: <%= error.message %>') }))
         .pipe(babel({
@@ -38,12 +38,12 @@ gulp.task('js',function(){
             path.extname = '.min.js'
         }))
         .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest('dist/js'))
+        .pipe(gulp.dest('public/dist/js'))
 })
 
 gulp.task('watch',function(){
-    gulp.watch('build/less/*.less',['css']);
-    gulp.watch('build/es6/*.es',['js']);
+    gulp.watch('public/build/less/*.less',['css']);
+    gulp.watch('public/build/es6/*.es',['js']);
 });
 
 gulp.task('default',['css','js','watch']);
