@@ -1,19 +1,30 @@
 {
-  "name": "imgupload",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "html5-imgUpload",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ./bin/www"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/guopeng27/html5-imgUpload.git"
-  },
-  "author": "guopeng",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/guopeng27/html5-imgUpload/issues"
-  },
-  "homepage": "https://github.com/guopeng27/html5-imgUpload#readme"
+  "dependencies": {
+    "body-parser": "~1.15.1",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.2.0",
+    "express": "~4.13.4",
+    "morgan": "~1.7.0",
+    "serve-favicon": "~2.3.0",
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-clean-css": "^2.0.13",
+    "gulp-concat": "^2.6.0",
+    "gulp-concat-util": "^0.5.5",
+    "gulp-less": "^3.1.0",
+    "gulp-notify": "^2.2.0",
+    "gulp-order": "^1.1.1",
+    "gulp-plumber": "^1.1.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sourcemaps": "2.0.1",
+    "gulp-uglify": "^2.0.0",
+    "gulp-watch": "^4.3.10",
+    "less-plugin-autoprefix": "^1.5.1"
+  }
 }
