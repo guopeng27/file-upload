@@ -11,7 +11,7 @@ var users = require('./routes/users');
 var app = express();
 var handlebars = require('express3-handlebars').create();
 handlebars.layoutsDir = __dirname + '/views/layouts';
-handlebars.defaultLayout = 'main';
+handlebars.defaultLayout = 'common';
 handlebars.extname = '.hbs';
 handlebars.helpers = {
   section(name, options) {
