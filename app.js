@@ -9,10 +9,21 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
-
+var handlebars = require('express3-handlebars').create();
+handlebars.layoutsDir = __dirname + '/views/layouts';
+handlebars.defaultLayout = 'main';
+handlebars.extname = '.hbs';
+handlebars.helpers = {
+  section(name, options) {
+    if (!this._sections) this._sections = {};
+    this._sections[name] = options.fn(this);
+    return null;
+  }
+};
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.engine('.hbs', handlebars.engine);
+app.set('views', __dirname + '/views');
+app.set('view engine', '.hbs')
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -57,4 +68,7 @@ app.use(function(err, req, res, next) {
 });
 
 
-module.exports = app;
+//监听端口
+app.listen(3000, '127.0.0.1', function() {
+  console.log('express started on http://127.0.0.1:3000' );
+});
