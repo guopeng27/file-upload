@@ -10,7 +10,7 @@ router.get('/', function(req, res, next) {
 router.post('/upload',function(req,res){
   var form = new formidable.IncomingForm();
   form.encoding = 'utf-8';
-  form.uploadDir = "public/dist/img";
+  form.uploadDir = "public/dist/img/upload";
   form.keepExtensions = true;
   form.maxFieldsSize = 2 * 1024 * 1024;
   form.maxFields = 1000;
