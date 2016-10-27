@@ -11,10 +11,9 @@
         }
         setOptions(options){
             this.upButton = $(options.upButton);
-            this.prevImg = options.prevImg;
             this.url = options.url;
             this.autoUpload  = false || options.autoUpload;
-            this.dragDrop = null || $(options.dragDrop);
+            this.dropArea = null || $(options.dropArea);
             this.filesFilter = [];
 
             this.filter = options.filter || function(){};
@@ -30,6 +29,7 @@
             let self = this;
             e.stopPropagation()
             e.preventDefault();
+            this.dropArea.removeClass('active');
             let files = e.target.files || e.originalEvent.dataTransfer.files;
             let prevFilesSrc = [];
             $(files).each(function(index,file){
@@ -40,17 +40,29 @@
                 reader.readAsDataURL(file);
                 reader.onload = function (e) {
                     prevFilesSrc.push(e.target.result);
+                    if(index == $(files).length -1 ){
+                        //预览回调
+                        self.prevImg(prevFilesSrc);
+                    }
                 }
             });
-            this.prevImg(prevFilesSrc);
         }
 
         upload(){
+            if(this.filesFilter.length == 0){
+                alert('请先选择需要上传的文件！');
+                return
+            }
+            let self = this;
+            let formData = new FormData();
+            $(this.filesFilter).each(function(index,item){
+                formData.append('file'+index,item)
+            });
             $.ajax({
                 xhr: function(){
                     var xhr = new window.XMLHttpRequest();
                     xhr.upload.addEventListener("progress" , function(e){
-                        this.progress(e);
+                        self.progress(e);
                     }, false);
                     return xhr;
                 },
@@ -59,8 +71,19 @@
                 data : formData,
                 processData: false,
                 contentType: false,
-                success : this.compeleted
+                success : function(msg){
+                    self.filesFilter.length = 0;
+                    self.compeleted(msg);
+                }
             });
+        }
+
+        dragEnter(){
+            this.dropArea.addClass('active');
+        }
+
+        dragLeave(){
+            this.dropArea.removeClass('active');
         }
 
         init(){
@@ -75,9 +98,19 @@
             }
 
             //拖拽
-            if (this.dragDrop) {
-                this.dragDrop.on("drop", $.proxy(this.fileAdded,this));
+            if (this.dropArea) {
+                this.dropArea.on("dragenter", $.proxy(this.dragEnter,this));
+                this.dropArea.on("dragleave", $.proxy(this.dragLeave,this));
+                this.dropArea.on("drop", $.proxy(this.fileAdded,this));
             }
+
+            //阻止浏览器默认行。
+            $(document).on({
+                dragleave:function(e){e.preventDefault();},
+                drop:function(e){ e.preventDefault();},
+                dragenter:function(e){ e.preventDefault();},
+                dragover:function(e){e.preventDefault();}
+            });
         }
     }
 
@@ -95,61 +128,44 @@
 
 
 
-
-
-
-$(function(){
-    //阻止浏览器默认行。
-    $(document).on({
-        dragleave:function(e){    //拖离
-            e.preventDefault();
-        },
-        drop:function(e){  //拖后放
-            e.preventDefault();
-        },
-        dragenter:function(e){    //拖进
-            e.preventDefault();
-        },
-        dragover:function(e){    //拖来拖去
-            e.preventDefault();
-        }
-    });
-});
 $('#upBtn').imgupload({
     upButton : '#up', //上传按钮
+    dropArea : '#drop', //拖拽敏感区域
     url : '/upload', //post地址
-    dragDrop : '#drop', //拖拽敏感区域
     autoUpload : false, //是否自动上传
     prevImg : function(imgs){ //预览图片
-        console.log(imgs)
+        var _imgs = '';
+        $(imgs).each(function(index,item){
+            _imgs += '<img width="100" height="100" src="'+ item +'">';
+        });
+        $('#prev').append(_imgs);
+
     },
     filter : function(files){ //过滤文件
 
     },
     progress : function(evt){ //上传进度
         if (evt.lengthComputable) {
-            var timer;
             var percentComplete = evt.loaded / evt.total;
-            $('#progressBar').show();
-            $('#progressBar .inner').animate({width:percentComplete*100+'%'},function(){
-                if(percentComplete == 1 ){
-                    $('#progressBar').fadeOut();
-                    clearInterval(timer)
-                    $('#progressBar .num').html(percentComplete*100+'%');
-                }
-            });
-            timer = setInterval(function(){
-                if(parseInt($('#progressBar .num').html()) == Math.floor(percentComplete*100)){
-                    clearInterval(timer)
-                }else{
-                    $('#progressBar .num').html(parseInt($('#progressBar .num').html())+1+'%');
-                }
-            },60)
-
+            if($('#up').next('.num').length){
+                $('#up').next('.num').html(Math.floor(percentComplete*100)+'%');
+            }else{
+                $('#up').after('<span class="num">'+ Math.floor(percentComplete*100) + '%</span>');
+            }
         }
     },
     compeleted : function(msg){ //上完完毕
-        console.log(msg)
+        if(msg.code == 'ok'){
+            $('#prev').html('');
+            $('#up').next('.num').html('上传完毕！');
+            setTimeout(function(){
+                $('#up').next('.num').fadeOut(300);
+            },1000);
+        }
     }
 });
+
+
+
+
 
