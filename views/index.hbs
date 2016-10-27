@@ -1,6 +1,59 @@
-<div class="imgupload-wrapper">
-    <input id="upBtn" type="file" name="file" multiple/>
-    <button type="button" id="up">上传</button>
-    <div class="preview" id="preView"></div>
+<input id="upBtn" type="file" multiple/>
+<div class="drop-area" id="drop" >请将文件拖拽至此区域</div>
+<button type="button" id="up">上传</button>
+<div id="prev" class="prev"></div>
 
-</div>
+{{#section 'js'}}
+<script>
+    $('#upBtn').imgupload({
+        upButton : '#up', //上传按钮
+        dropArea : '#drop', //拖拽敏感区域
+        url : '/upload', //post地址
+        autoUpload : false, //是否自动上传
+        prevImg : function(imgs){ //预览图片
+            var _imgs = '';
+            $(imgs).each(function(index,item){
+
+                _imgs += '<img width="100" height="100" src="'+ item +'">';
+            });
+            $('#prev').append(_imgs);
+
+        },
+        filter : function(files){ //过滤文件
+            var filterArr = [];
+            var overWarning = '';
+            $(files).each(function(index,item){
+                if(item.size > 2*1024*1024){
+                    overWarning += item.name + ':体积大于2M,请压缩后上传!\n';
+                }else{
+                    filterArr.push(item)
+                }
+            });
+            if(overWarning){ alert(overWarning);}
+            return filterArr;
+        },
+        progress : function(evt){ //上传进度
+            if (evt.lengthComputable) {
+                var percentComplete = evt.loaded / evt.total;
+                if($('#up').next('.num').length){
+                    $('#up').next('.num').html(Math.floor(percentComplete*100)+'%');
+                }else{
+                    $('#up').after('<span class="num">'+ Math.floor(percentComplete*100) + '%</span>');
+                }
+            }
+        },
+        compeleted : function(msg){ //上完完毕
+            if(msg.code == 'ok'){
+                $('#prev').html('');
+                $('#up').next('.num').html('上传完毕！');
+                setTimeout(function(){
+                    $('#up').next('.num').fadeOut(300,function () {
+                        $('#up').next('.num').remove();
+                    });
+                },1000);
+            }
+        }
+    });
+
+</script>
+{{/section}}
