@@ -15,8 +15,10 @@
             this.autoUpload  = false || options.autoUpload;
             this.dropArea = null || $(options.dropArea);
             this.filesFilter = [];
+            this.maxSize = options.maxSize || (2 * 1024 * 1024);
+            this.maxLength = options.maxLength || 10;
 
-            this.filter = options.filter || function(){};
+            this.filter = options.filter || function(files){ return files;};
             this.prevImg = options.prevImg || function(){};
             this.progress = options.progress || function(){};
             this.compeleted = options.compeleted || function(){};
@@ -30,18 +32,18 @@
             e.stopPropagation()
             e.preventDefault();
             this.dropArea.removeClass('active');
-            let files = e.target.files || e.originalEvent.dataTransfer.files;
+            let files = self.filter(e.target.files) || self.filter(e.originalEvent.dataTransfer.files);
+            self.filesFilter.concat(files)
+            let fileLength = files.length;
             let prevFilesSrc = [];
+
             $(files).each(function(index,file){
-                //上传文件添加至队列
-                self.filesFilter.push(file);
                 //预览图队列
                 let reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = function (e) {
                     prevFilesSrc.push(e.target.result);
-                    if(index == $(files).length -1 ){
-                        //预览回调
+                    if(index == files.length -1) {
                         self.prevImg(prevFilesSrc);
                     }
                 }
@@ -136,13 +138,24 @@ $('#upBtn').imgupload({
     prevImg : function(imgs){ //预览图片
         var _imgs = '';
         $(imgs).each(function(index,item){
+
             _imgs += '<img width="100" height="100" src="'+ item +'">';
         });
         $('#prev').append(_imgs);
 
     },
     filter : function(files){ //过滤文件
-
+        var filterArr = [];
+        var overWarning = '';
+        $(files).each(function(index,item){
+            if(item.size > 2*1024*1024){
+                overWarning += item.name + ':体积大于2M,请压缩后上传!\n';
+            }else{
+                filterArr.push(item)
+            }
+        });
+        alert(overWarning);
+        return filterArr;
     },
     progress : function(evt){ //上传进度
         if (evt.lengthComputable) {
@@ -159,7 +172,9 @@ $('#upBtn').imgupload({
             $('#prev').html('');
             $('#up').next('.num').html('上传完毕！');
             setTimeout(function(){
-                $('#up').next('.num').fadeOut(300);
+                $('#up').next('.num').fadeOut(300,function () {
+                    $('#up').remove();
+                });
             },1000);
         }
     }
