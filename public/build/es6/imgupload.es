@@ -14,7 +14,7 @@
             this.url = options.url;
             this.autoUpload  = false || options.autoUpload;
             this.dropArea = null || $(options.dropArea);
-            this.filesFilter = [];
+            this.filesList = [];
             this.maxSize = options.maxSize || (2 * 1024 * 1024);
             this.maxLength = options.maxLength || 10;
 
@@ -32,18 +32,20 @@
             e.stopPropagation()
             e.preventDefault();
             this.dropArea.removeClass('active');
-            let files = self.filter(e.target.files) || self.filter(e.originalEvent.dataTransfer.files);
-            self.filesFilter.concat(files)
-            let fileLength = files.length;
+            let files = e.target.files || e.originalEvent.dataTransfer.files;
+            //当前新增过滤后文件
+            let filterFiles = self.filter(files);
+            //上传队列
+            self.filesList = self.filesList.concat(filterFiles);
+            //当前新增预览
             let prevFilesSrc = [];
-
-            $(files).each(function(index,file){
+            $(filterFiles).each(function(index,file){
                 //预览图队列
                 let reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = function (e) {
                     prevFilesSrc.push(e.target.result);
-                    if(index == files.length -1) {
+                    if(index == filterFiles.length -1) {
                         self.prevImg(prevFilesSrc);
                     }
                 }
@@ -51,13 +53,13 @@
         }
 
         upload(){
-            if(this.filesFilter.length == 0){
+            if(this.filesList.length == 0){
                 alert('请先选择需要上传的文件！');
                 return
             }
             let self = this;
             let formData = new FormData();
-            $(this.filesFilter).each(function(index,item){
+            $(this.filesList).each(function(index,item){
                 formData.append('file'+index,item)
             });
             $.ajax({
@@ -74,7 +76,7 @@
                 processData: false,
                 contentType: false,
                 success : function(msg){
-                    self.filesFilter.length = 0;
+                    self.filesList.length = 0;
                     self.compeleted(msg);
                 }
             });
@@ -154,7 +156,7 @@ $('#upBtn').imgupload({
                 filterArr.push(item)
             }
         });
-        alert(overWarning);
+        if(overWarning){ alert(overWarning);}
         return filterArr;
     },
     progress : function(evt){ //上传进度
@@ -173,7 +175,7 @@ $('#upBtn').imgupload({
             $('#up').next('.num').html('上传完毕！');
             setTimeout(function(){
                 $('#up').next('.num').fadeOut(300,function () {
-                    $('#up').remove();
+                    $('#up').next('.num').remove();
                 });
             },1000);
         }
