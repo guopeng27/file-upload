@@ -9,7 +9,7 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
-var handlebars = require('express3-handlebars').create();
+var handlebars = require('express-handlebars').create();
 handlebars.layoutsDir = __dirname + '/views/layouts';
 handlebars.defaultLayout = 'common';
 handlebars.extname = '.hbs';
