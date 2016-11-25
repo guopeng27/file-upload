@@ -18,13 +18,11 @@
             this.maxSize = options.maxSize || (2 * 1024 * 1024);
             this.maxLength = options.maxLength || 10;
 
-            this.beginUp = options.beginUp || function(){};
             this.filter = options.filter || function(files){ return files;};
             this.prevImg = options.prevImg || function(){};
             this.progress = options.progress || function(){};
             this.compeleted = options.compeleted || function(){};
-
-
+            this.beginUp = options.beginUp || function(){};
 
             this.init();
         }
@@ -52,6 +50,9 @@
                     }
                 }
             });
+            if(this.autoUpload){
+                this.upload();
+            }
         }
 
         upload(){
