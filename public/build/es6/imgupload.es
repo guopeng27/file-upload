@@ -18,10 +18,12 @@
             this.maxSize = options.maxSize || (2 * 1024 * 1024);
             this.maxLength = options.maxLength || 10;
 
+            this.beginUp = options.beginUp || function(){};
             this.filter = options.filter || function(files){ return files;};
             this.prevImg = options.prevImg || function(){};
             this.progress = options.progress || function(){};
             this.compeleted = options.compeleted || function(){};
+
 
 
             this.init();
@@ -62,6 +64,7 @@
             $(this.filesList).each(function(index,item){
                 formData.append('file'+index,item)
             });
+            self.beginUp();
             $.ajax({
                 xhr: function(){
                     var xhr = new window.XMLHttpRequest();
